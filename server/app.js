@@ -1,6 +1,6 @@
-const express = require("express");
-const morgan = require("morgan");
-const axios = require("axios");
+const express = require('express');
+const morgan = require('morgan');
+const axios = require('axios');
 const app = express();
 
 var cache = {};
@@ -8,14 +8,18 @@ app.use(morgan("dev"));
 app.get("/", (req, res) => {
   //TAKES A QUERY
   let movieId = req.query.i;
-  let movieT = req.query.t;
+  let movieT = encodeURIComponent(req.query.t);
   let movie = {};
+  let movieUrl = "http://www.omdbapi.com/?";
+  let apikey = "&apikey=8730e0e";
 
   //EVALUTES THE QUERY
   if(movieId) {
+    movieUrl += "i=" + movieId;
     movie = movieId;
   } else if (movieT) {
-  	movie = movieT;   
+  	movieUrl += "t=" + movieT;
+    movie = movieT;
   } else {
     return res.json("Error");
   }
@@ -24,19 +28,17 @@ app.get("/", (req, res) => {
   if (cache[movie]) {
     res.json(cache[movie]);
   } else { 
-    axios.get("http://www.omdbapi.com" + movie + "&apikey=8730e0e")
+    axios.get(movieUrl + apikey)
       .then(response => {
         console.log(response.data);
-        res.json(response.data);
         cache[movie] = response.data;
-    })
-      .catch(error => {
+        res.json(response.data);
+    }).catch(error => {
         console.log(error);
         res.json("Error");
       });  
   }
 });
-
 
 // When making calls to the OMDB API make sure to append the '&apikey=8730e0e' parameter
 
