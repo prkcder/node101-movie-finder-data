@@ -5,6 +5,7 @@ const app = express();
 
 var cache = {};
 app.use(morgan("dev"));
+
 app.get("/", (req, res) => {
   //TAKES A QUERY
   let movieId = req.query.i;
